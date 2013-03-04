@@ -3,7 +3,7 @@ require 'yard-bench/version'
 
 Gem::Specification.new do |s|
   s.name = 'yard-bench'
-  s.version = YardBench::VERSION
+  s.version = Yard::Bench::VERSION
   s.platform = Gem::Platform::RUBY
   s.date = '2013-02-21'
   s.authors = ['Alexei Matyushkin']
@@ -26,8 +26,9 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_development_dependency 'rspec'
-  s.add_development_dependency 'yard'
   s.add_development_dependency 'cucumber'
   s.add_development_dependency 'bueller'
+  s.add_development_dependency 'yard'
+  s.add_development_dependency 'yard-cucumber'
 end
 
