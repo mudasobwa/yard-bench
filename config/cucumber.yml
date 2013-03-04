@@ -1,0 +1,6 @@
+# config/cucumber.yml
+##YAML Template
+---
+default: --profile yard
+yard: --format Yard::ColorCommentFormatter
+standard: --format pretty
