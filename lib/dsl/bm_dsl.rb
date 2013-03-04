@@ -1,8 +1,9 @@
 # encoding: utf-8
 
 require 'set'
-
 require 'benchmark'
+
+require_relative 'monkeypatches'
 
 # This should be a DSL used as:
 #   benchmark :time => true, :memory => true
@@ -11,80 +12,107 @@ require 'benchmark'
 module Yard
   module Bench
     module Marks
-      def self.benchmarks meths = nil
-        @@benchmarks ||= Set.new
-        @@benchmarks.merge meths.select { |m| m.respond_to? :call } if !meths.nil? && meths.respond_to?(:select)
-        @@benchmarks
+      using Yard::MonkeyPatches
+      
+      def self.⌚
+        
       end
-      def self.fails
+      
+      # Get all the benchmarks for the class. Lazy creates a `Set` to store
+      #   benchmarks for future use if there is no benchmarks for the given class yet.
+      #
+      # @param clazz [Class] the class to return benchmarks for
+      # @param &cb [λ] the codeblock to be executed on each benchmarked method
+      # @return [Hash] all the benchmarks, collected from DSL as following
+      #     benchmarks = {
+      #       String.class => <Set: {:capitalize, :split}>,
+      #       AClass.class => <Set: {:*}>
+      #     }
+      def self.bm… clazz = nil
+        it = (@@benchmarks ||= {})
+        it = (it[clazz] ||= Set.new) unless clazz.nil?
+        if block_given?
+          it.each(&Proc.new)
+          nil
+        else
+          it
+        end
+      end
+      def self.fails…
         @@fails ||= Set.new
+        block_given? ? @@fails.each(&Proc.new) : @@fails
       end
-      def self.benchmark meth
-        puts "Method: [#{meth}], Params: [#{meth.parameters}]" if self.benchmarks.add?(meth)
-      end
-      def self.fail e
-        puts "Exception: [#{e}]]" if self.fails.add?(e)
-      end
-#    private
-      def self.time meth
-        puts "a"
-        meth.call
-        puts "b"
-        Benchmark.measure { 1_000.times { meth.call } }.total
+
+      # Mark specified method of a class to be bemchmarkable
+      #
+      # @param clazz [Class] the class method is defined on
+      # @param meth [Symbol] the method(s) to set as benchmarkable
+      def self.bm∈ clazz, meth
+        bm…(clazz) << meth
       end
     end
 
     refine Kernel do
-      def benchmark *attribs
-        puts "#{self.method(:new).parameters}"
-        attribs.each do |a|
-          puts "#{self.instance_methods(false)}"
-          case a.to_sym
-          # puts all the methods, defined in this class to benchmarks
-          when :*
-            # FIXME should here be methods rather than instance_methods?
-            Yard::Bench::Marks.benchmarks self.instance_methods(false)
-          # puts all the methods, defined in this class and superclasses to benchmarks
-          when :**
-            # FIXME should here be methods rather than instance_methods?
-            Yard::Bench::Marks.benchmarks self.instance_methods(true)
-          else
-            begin
-              Yard::Bench::Marks.benchmark self.instance_method(a.to_sym)
-            rescue NameError => e
-              Yard::Bench::Marks.fail e
-            end
-          end
-        end
+      def ⌚ *attribs
+        attribs.each { |a| Yard::Bench::Marks.bm∈ self.to_s, a.to_sym }
       end
-      def benchmark!
-        Yard::Bench::Marks.benchmarks.each { |meth|
-          puts "Method: [#{meth}], Params: [#{meth.parameters}], Time: [#{Yard::Bench::Marks.time meth}]"
+      alias benchmark ⌚
+      
+      # It makes no sense to cache methods, params and other metastuff
+      #   since the majority of the time takes benchmarking itself
+      def ⌛
+        Yard::Bench::Marks.bm… { |c, m|
+          # Deal with class
+          clazz = Kernel.const_get(c) # class of the `c`
+          # Get parameters of constructor. There is a problem with
+          #   asking ruby about, since it always returns `[[:rest]]
+          #   for constructor. So, let’s hack.
+          begin
+            inst = clazz.new
+          rescue ArgumentError => e
+            puts e.to_s
+            /\((?<given>\d+)\s+\w+\s+(?<required>\d)(?<modifier>.*?)\)/.match(e.to_s) { |mtch|
+              puts mtch[:given]
+              puts mtch[:required]
+              puts mtch[:modifier]
+            }
+            # Iterate through standard classes and supply args. If no one is OK, report an error.
+            
+          end
+          p clazz.method(:new).parameters
+          inst = clazz.new 100
+
+          meths = []
+          m.each { |meth|
+            meths |= case meth
+              # puts all the methods, defined in this class to benchmarks
+              when :⋅ then clazz.instance_methods(false)
+              # puts all the methods, defined in this class and superclasses to benchmarks
+              when :⋅⋅ then clazz.instance_methods(true)
+              # puts all the singleton methods, defined in this class to benchmarks
+              when :× then clazz.singleton_methods(false)
+              # puts all the singleton methods, defined in this class and superclasses to benchmarks
+              when :×× then clazz.singleton_methods(true)
+              else [meth]
+            end
+          }
+          meths.each { |meth|
+            p "#{meth} : #{(inst.method meth).parameters}"
+            Benchmark.bm(30) { |x|
+              x.report("#{clazz}\##{meth}") { 1_000_000.times { inst.method meth } }
+            }
+          }
         }
+#      begin
+#      rescue NameError => e
+#        Yard::Bench::Marks.fail e
+#      end
       end
     end
   end
 end
 
 module Kernel
-  
-
-  def benchmark_other *attribs
-    attribs.each do |a|
-      c, m = a.split('#')
-      begin
-        # check if the class is really a class and reachable
-        cl = Object.const_get(c)
-        if !m.nil? && cl.method_defined?(m.to_sym)
-          # FIXME handle m==nil and m="*" and m='regexp' differently
-          (@@benchmarks ||= []) << MethodToBenchmark.new(cl, m.to_sym)
-        end
-      rescue NameError => ne
-        # FIXME warn about bad class request in benchmark
-        puts "ERROR: #{ne}"
-      end
-    end
-  end
   
   def benchmarkold!
     (@@benchmarks ||= []).each do |bm|
@@ -101,21 +129,60 @@ module Kernel
 end
 
 using Yard::Bench
+
+using Yard::MonkeyPatches
+p "".random
+p '-'*30
+p 100.random
+p '-'*30
+p [].random
+p '-'*30
+p Hash.new.random
+
+
+__END__
+
   
-class BmTester
-  benchmark :do_it
-
-  def do_it
-    100 ** 2
+module BmTests
+  class BmTester
+    benchmark :do_it, :do_other
+    attr_reader :value
+    def initialize value, *attrs
+      p "Inside init: [#{value}]"
+      @value = value
+    end
+    def do_it deg
+      @value ** deg
+    end
+    def do_other base = 2
+      base ** @value
+    end
   end
-  def do_other
-    2 ** 100
-  end
-
+end
+class String
+  ⌚ :capitalize
 end
 
-BmTester.new.do_it
-benchmark!
+⌛
+
+#BmTests::BmTester.new.do_it
+#puts '-'*30
+#puts Yard::Bench::Marks.bm…
+#puts Yard::Bench::Marks.bm….reject {|c, m| c !~ /Test/}
+
+#puts '-'*30
+#Yard::Bench::Marks.bm…(BmTests::BmTester.to_s) { |m|
+#  puts "Method: [#{m}]"
+#}
+
+#puts '-'*30
+#Yard::Bench::Marks.bm… { |clazz, meth|
+#  puts "Class: #{clazz}"
+#  meth.each { |m|
+#    puts "Method: [#{m}]"
+##    puts "Method: [#{meth}], Params: [#{meth.parameters}], Time: [#{Yard::Bench::Marks.time meth}]"
+#  }
+#}
 
 __END__
 kb = `ps -o rss= -p #{$$}`.to_i
