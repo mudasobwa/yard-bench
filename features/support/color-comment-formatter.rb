@@ -1,3 +1,4 @@
+# encoding: utf-8
 # features/support/color-comment-formatter.rb
 
 require 'rubygems'

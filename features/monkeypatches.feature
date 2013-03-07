@@ -57,3 +57,11 @@ Feature: Applying shorthands and some new methods to standard library
     When I call random of a size 1024 on a Hash instance
     Then the random value should be generated of type Hash and have length of 1024
   
+# -----------------------------------------------------------
+# --------------------   Singletons   -----------------------
+# -----------------------------------------------------------
+  
+  Scenario: Random value for the String class should be produced by call to String.random
+    Given I am `using Yard::MonkeyPatches`
+    When I call random of on a String class
+    Then the random value should be generated of type String and have default length of 32

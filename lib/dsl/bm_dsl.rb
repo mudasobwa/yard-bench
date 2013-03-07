@@ -52,35 +52,33 @@ module Yard
       end
     end
 
-    refine Kernel do
+    module ::Kernel
+      # Mark the task for benchmarking
+      # @param *attribs [[:rest]] the list of methods to benchmark
       def ⌚ *attribs
         attribs.each { |a| Yard::Bench::Marks.bm∈ self.to_s, a.to_sym }
       end
       alias benchmark ⌚
-      
+
+#      STANDARD_TIME = Benchmark.measure { 1_000_000.times { String.∀.capitalize }}
+      STANDARD_TIME = Benchmark.measure { 100_000.times { 'Foo Bar Baz'*1024 }}.total
+
+      def ☂⌛ clazz, m
+        # Let’ calculate the applicable range
+        deg = (1..10).each { |v|
+          break v if Benchmark.measure { (10**v).times {clazz.☏ m} }.total > 0.01
+        }
+        amounts = (deg..deg+2).to_a.map { |d| 10**d }
+        amounts.map { |e| Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME }
+      end
+
       # It makes no sense to cache methods, params and other metastuff
       #   since the majority of the time takes benchmarking itself
       def ⌛
         Yard::Bench::Marks.bm… { |c, m|
           # Deal with class
           clazz = Kernel.const_get(c) # class of the `c`
-          # Get parameters of constructor. There is a problem with
-          #   asking ruby about, since it always returns `[[:rest]]
-          #   for constructor. So, let’s hack.
-          begin
-            inst = clazz.new
-          rescue ArgumentError => e
-            puts e.to_s
-            /\((?<given>\d+)\s+\w+\s+(?<required>\d)(?<modifier>.*?)\)/.match(e.to_s) { |mtch|
-              puts mtch[:given]
-              puts mtch[:required]
-              puts mtch[:modifier]
-            }
-            # Iterate through standard classes and supply args. If no one is OK, report an error.
-            
-          end
-          p clazz.method(:new).parameters
-          inst = clazz.new 100
+          inst = clazz.☎
 
           meths = []
           m.each { |meth|
@@ -112,50 +110,20 @@ module Yard
   end
 end
 
-module Kernel
-  
-  def benchmarkold!
-    (@@benchmarks ||= []).each do |bm|
-      puts bm.klass.new("olala").send bm.method
-      puts Benchmark.realtime {
-        if bm.params.nil? || bm.params.size === 0
-          1000.times { bm.klass.new("olala").send bm.method }
-        else
-          1000.times { bm.klass.new.send bm.method, bm.params }
-        end
-      }
-    end
-  end
-end
-
 using Yard::Bench
 
-using Yard::MonkeyPatches
-p "".random
-p '-'*30
-p 100.random
-p '-'*30
-p [].random
-p '-'*30
-p Hash.new.random
-
-
-__END__
-
-  
 module BmTests
   class BmTester
     benchmark :do_it, :do_other
     attr_reader :value
-    def initialize value, *attrs
-      p "Inside init: [#{value}]"
-      @value = value
+    def initialize value, addval, *attrs
+      @value = 10 + value + addval
     end
     def do_it deg
-      @value ** deg
+      @value * deg
     end
     def do_other base = 2
-      base ** @value
+      base * @value
     end
   end
 end
@@ -163,7 +131,9 @@ class String
   ⌚ :capitalize
 end
 
-⌛
+res, rest = BmTests::BmTester.☏ :do_it
+p res
+p BmTests::BmTester.☏ :do_other
 
 #BmTests::BmTester.new.do_it
 #puts '-'*30
