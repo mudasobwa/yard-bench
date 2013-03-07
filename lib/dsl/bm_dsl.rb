@@ -46,9 +46,9 @@ module Yard
           {
             :class => clazz, :methods => meths.inject({}) { |agg, meth|
             bm = ⌚(clazz, meth)
+            mem = ☑(clazz, meth)
             yield clazz, meth, bm if block_given?
-            agg[meth] = bm
-            agg # FIXME Is there _really_ no method to add new value and return Hash instance?!
+            agg.merge({meth => {:benchmark => bm, :memory => mem}})
           }}
         }
       end
@@ -85,6 +85,7 @@ module Yard
       # @param clazz [Class] the class to measure method for
       # @param m [Symbol] the method to measure
       # @param iterations [Fixnum] an amount of iterations to do
+      # @return benchmarking total, normalized by STANDARD_TIME
       def self.⌚ clazz, m, iterations = 3
         # Let’ calculate the applicable range
         deg = (1..10).each { |v|
@@ -96,6 +97,19 @@ module Yard
             Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME
           }
         }
+      end
+      # Measures the memory required for a method in KBytes.
+      # FIXME This is VERY inaccurate and lame.
+      # @param clazz [Class] the class to measure method for
+      # @param m [Symbol] the method to measure
+      # @param iterations [Fixnum] an amount of iterations to do
+      # @return an approximate amount of kilobytes
+      def self.☑ clazz, m, iterations = 10
+        kb = `ps -o rss= -p #{$$}`.to_i
+        iterations.times.map {
+          clazz.☏ m
+          `ps -o rss= -p #{$$}`.to_i
+        }.reduce(&:+) / iterations - kb
       end
     end
 
