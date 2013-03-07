@@ -13,65 +13,18 @@ module Yard
   module Bench
     module Marks
       using Yard::MonkeyPatches
-      # Get all the benchmarks for the class. Lazy creates a `Set` to store
-      #   benchmarks for future use if there is no benchmarks for the given class yet.
-      #
-      # @param clazz [Class] the class to return benchmarks for
-      # @param &cb [λ] the codeblock to be executed on each benchmarked method
-      # @return [Hash] all the benchmarks, collected from DSL as following
-      #     benchmarks = {
-      #       String.class => <Set: {:capitalize, :split}>,
-      #       AClass.class => <Set: {:*}>
-      #     }
-      def self.bm… clazz = nil
-        it = (@@benchmarks ||= {})
-        it = (it[clazz] ||= Set.new) unless clazz.nil?
-        if block_given?
-          it.each(&Proc.new)
-          nil
-        else
-          it
-        end
-      end
-      def self.fails…
-        @@fails ||= Set.new
-        block_given? ? @@fails.each(&Proc.new) : @@fails
-      end
-
       # Mark specified method of a class to be bemchmarkable
       #
       # @param clazz [Class] the class method is defined on
       # @param meth [Symbol] the method(s) to set as benchmarkable
-      def self.bm∈ clazz, meth
+      def self.∈ clazz, meth
         bm…(clazz) << meth
-      end
-    end
-
-    module ::Kernel
-      # Mark the task for benchmarking
-      # @param *attribs [[:rest]] the list of methods to benchmark
-      def ⌚ *attribs
-        attribs.each { |a| Yard::Bench::Marks.bm∈ self.to_s, a.to_sym }
-      end
-      alias benchmark ⌚
-      
-      # FIXME Don’t do this until it is really needed
-      STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
-
-      def ☂⌛ clazz, m, iterations = 3
-        # Let’ calculate the applicable range
-        deg = (1..10).each { |v|
-          break v if Benchmark.measure { (10**v).times {clazz.☏ m} }.total > 0.01
-        }
-        (deg...deg+iterations).to_a.map { |d| 10**d }.map { |e|
-          Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME
-        }
       end
 
       # It makes no sense to cache methods, params and other metastuff
       #   since the majority of the time takes benchmarking itself
-      def ⌛
-        Yard::Bench::Marks.bm… { |c, m|
+      def self.⌛
+        bm… { |c, m|
           # Deal with class
           clazz = Kernel.const_get(c) # class of the `c`
 
@@ -89,11 +42,71 @@ module Yard
               else [meth]
             end
           }
-          meths.each { |meth|
-            yield clazz, meth, ☂⌛(clazz, meth) if block_given?
+          
+          {
+            :class => clazz, :methods => meths.inject({}) { |agg, meth|
+            bm = ⌚(clazz, meth)
+            yield clazz, meth, bm if block_given?
+            agg[meth] = bm
+            agg # FIXME Is there _really_ no method to add new value and return Hash instance?!
+          }}
+        }
+      end
+
+    private
+      # Standard time for the current processor/ram to normalize benchmarks
+      STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
+
+      # Get all the benchmarks for the class. Lazy creates a `Set` to store
+      #   benchmarks for future use if there is no benchmarks for the given class yet.
+      #
+      # @param clazz [Class] the class to return benchmarks for
+      # @param &cb [λ] the codeblock to be executed on each benchmarked method
+      # @return [Hash] all the benchmarks, collected from DSL as following
+      #     benchmarks = {
+      #       String.class => <Set: {:capitalize, :split}>,
+      #       AClass.class => <Set: {:*}>
+      #     }
+      def self.bm… clazz = nil
+        it = (@@benchmarks ||= {})
+        it = (it[clazz] ||= Set.new) unless clazz.nil?
+        if block_given?
+          it.map(&Proc.new)
+        else
+          it
+        end
+      end
+      # FIXME Not yet used: errors, yielded during benchmarking
+      def self.fails…
+        @@fails ||= Set.new
+        block_given? ? @@fails.each(&Proc.new) : @@fails
+      end
+      # Measures the specified method of the class given
+      # @param clazz [Class] the class to measure method for
+      # @param m [Symbol] the method to measure
+      # @param iterations [Fixnum] an amount of iterations to do
+      def self.⌚ clazz, m, iterations = 3
+        # Let’ calculate the applicable range
+        deg = (1..10).each { |v|
+          break v if Benchmark.measure { (10**v).times {clazz.☏ m} }.total > 0.01
+        }
+        {
+          :times => 10**deg,
+          :benchmarks => (deg...deg+iterations).to_a.map { |d| 10**d }.map { |e|
+            Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME
           }
         }
       end
+    end
+
+    module ::Kernel
+      # Mark the task for benchmarking
+      # @param *attribs [[:rest]] the list of methods to benchmark
+      def ⌚ *attribs
+        attribs.each { |a| Yard::Bench::Marks.∈ self.to_s, a.to_sym }
+      end
+      alias benchmark ⌚
+      
     end
   end
 end

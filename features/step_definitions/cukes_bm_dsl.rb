@@ -60,9 +60,10 @@ end
 end
 
 When(/^I call a ⌛ method$/) do
-  ⌛ { |c, m, bms|
-    puts "#{c}\##{m} ⇒ #{bms}"
-  }
+#  Yard::Bench::Marks.⌛ { |c, m, bms|
+#    puts "#{c}\##{m} ⇒ Starting with [#{bms[:times]}] → #{bms[:benchmarks]}"
+#  }
+  puts Yard::Bench::Marks.⌛
 end
 
 Then(/^I yield all the benchmarks$/) do
