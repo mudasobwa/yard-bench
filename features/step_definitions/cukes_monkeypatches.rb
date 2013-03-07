@@ -97,11 +97,40 @@ end
 # --------------------   Singletons   -----------------------
 # -----------------------------------------------------------
   
-When(/^I call random of on a String class$/) do
-  @i = String.∀
+When(/^I call ∀ on a String class$/) do
+  @is = String.∀
 end
 
 Then(/^the random value should be generated of type String and have default length of (\d+)$/) do |sz|
-  String === @i && sz.to_i == @i.length
-  puts "Generated String: “#{@i}”"
+  String === @is && sz.to_i == @is.length
+  puts "Generated String: “#{@is}”"
+end
+
+When(/^I call ∀ on a Fixnum class$/) do
+  @if = Fixnum.∀
+end
+
+Then(/^the random value should be generated of type Fixnum and be not greater than (\d+)$/) do |maxval|
+  Fixnum === @if && @if < maxval.to_i
+  puts "Generated Fixnum: “#{@if}”"
+end
+
+When(/^I call ∀ on an Array class with size parameter (\d+)$/) do |sz|
+  @sz = sz.to_i
+  @ia = Array.∀ :size => @sz
+end
+
+Then(/^the random value should be generated of type Array and have size of the parameter$/) do
+  Array === @ia && @ia.size == @sz
+  puts "Generated Array (1st element): “#{@ia[0]}”"
+end
+
+When(/^I call ∀ on a Hash class with size parameter (\d+)$/) do |sz|
+  @sz = sz.to_i
+  @ih = Hash.∀ :size => @sz
+end
+
+Then(/^the random value should be generated of type Hash and have size of the parameter$/) do
+  Hash === @ih && @ih.size == @sz
+  puts "Generated Hash (1st element): “#{@ih.first}”"
 end

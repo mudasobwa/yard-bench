@@ -13,11 +13,6 @@ module Yard
   module Bench
     module Marks
       using Yard::MonkeyPatches
-      
-      def self.⌚
-        
-      end
-      
       # Get all the benchmarks for the class. Lazy creates a `Set` to store
       #   benchmarks for future use if there is no benchmarks for the given class yet.
       #
@@ -59,17 +54,18 @@ module Yard
         attribs.each { |a| Yard::Bench::Marks.bm∈ self.to_s, a.to_sym }
       end
       alias benchmark ⌚
+      
+      # FIXME Don’t do this until it is really needed
+      STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
 
-#      STANDARD_TIME = Benchmark.measure { 1_000_000.times { String.∀.capitalize }}
-      STANDARD_TIME = Benchmark.measure { 100_000.times { 'Foo Bar Baz'*1024 }}.total
-
-      def ☂⌛ clazz, m
+      def ☂⌛ clazz, m, iterations = 3
         # Let’ calculate the applicable range
         deg = (1..10).each { |v|
           break v if Benchmark.measure { (10**v).times {clazz.☏ m} }.total > 0.01
         }
-        amounts = (deg..deg+2).to_a.map { |d| 10**d }
-        amounts.map { |e| Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME }
+        (deg...deg+iterations).to_a.map { |d| 10**d }.map { |e|
+          Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME
+        }
       end
 
       # It makes no sense to cache methods, params and other metastuff
@@ -78,7 +74,6 @@ module Yard
         Yard::Bench::Marks.bm… { |c, m|
           # Deal with class
           clazz = Kernel.const_get(c) # class of the `c`
-          inst = clazz.☎
 
           meths = []
           m.each { |meth|
@@ -95,45 +90,13 @@ module Yard
             end
           }
           meths.each { |meth|
-            p "#{meth} : #{(inst.method meth).parameters}"
-            Benchmark.bm(30) { |x|
-              x.report("#{clazz}\##{meth}") { 1_000_000.times { inst.method meth } }
-            }
+            yield clazz, meth, ☂⌛(clazz, meth) if block_given?
           }
         }
-#      begin
-#      rescue NameError => e
-#        Yard::Bench::Marks.fail e
-#      end
       end
     end
   end
 end
-
-using Yard::Bench
-
-module BmTests
-  class BmTester
-    benchmark :do_it, :do_other
-    attr_reader :value
-    def initialize value, addval, *attrs
-      @value = 10 + value + addval
-    end
-    def do_it deg
-      @value * deg
-    end
-    def do_other base = 2
-      base * @value
-    end
-  end
-end
-class String
-  ⌚ :capitalize
-end
-
-res, rest = BmTests::BmTester.☏ :do_it
-p res
-p BmTests::BmTester.☏ :do_other
 
 #BmTests::BmTester.new.do_it
 #puts '-'*30

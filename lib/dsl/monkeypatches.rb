@@ -122,16 +122,17 @@ module Yard
       # Tries to call a mthd on a class
       # @param m [Symbol] the method to be called
       def ☏ m = :to_s
-        params = fake_parameters(:m => m)
-        [@☆, params]
+        ☎.send(m, *fake_parameters(:m => m))
       end
 
-      def ∀
+      # Instantiates the class with applicable random value
+      # @return a random value of this Class class
+      def ∀ *args
         begin
           inst = self.☎
           raise NotImplementedError.new("The class should implement `∀` instance method") \
             unless inst.respond_to? :∀
-          inst.∀
+          inst.∀ *args
         rescue Exception => e
           raise NotImplementedError.new("No way: #{e}")
         end
@@ -164,36 +165,41 @@ private
       # @param inst [Object] an instance to suggest parameters of method for
       # @return [Array] an array of parameters suggested
       def fake_parameters(m: nil)
-        # We need an instance first of all
-        if m.nil? || !@★
-          params = required_parameters
-          guessed = [].∀(:size => params[:req].size, :samples => [RandomVoid.new])
-          guessed.map! { |elem|
-            begin
-              elem if @★ ||= self.new(*guessed)
-            rescue TypeError => e
-              ::Kernel.const_get(e.type_data[:required]).new.∀
-            end
-          }
-          @★ ||= self.new(*guessed)
-        end
-        
-        # Let’s proceed with method
-        unless m.nil?
-          params = required_parameters :m => m
+        if (@☆ ||= {})[m].nil?
+          # We need an instance first of all
+          if m.nil? || !@★
+            params = required_parameters
+            guessed = [].∀(:size => params[:req].size, :samples => [RandomVoid.new])
+            guessed.map! { |elem|
+              begin
+                elem if @★ ||= self.new(*guessed)
+              rescue TypeError => e
+                ::Kernel.const_get(e.type_data[:required]).new.∀
+              end
+            }
+            @★ ||= self.new(*guessed)
+            @☆[nil] = guessed.map(&:class)
+          end
           
-          guessed = [].∀(:size => params[:req].size, :samples => [RandomVoid.new])
-          guessed.map! { |elem|
-            begin
-              elem if @☆=@★.send(m, *guessed)
-            rescue TypeError => e
-              ::Kernel.const_get(e.type_data[:required]).new.∀
-            end
-          }
-          @☆=@★.send(m, *guessed)
+          # Let’s proceed with method
+          unless m.nil?
+            params = required_parameters :m => m
+            
+            guessed = [].∀(:size => params[:req].size, :samples => [RandomVoid.new])
+            guessed.map! { |elem|
+              begin
+                elem if @☆=@★.send(m, *guessed)
+              rescue TypeError => e
+                ::Kernel.const_get(e.type_data[:required]).new.∀
+              end
+            }
+            @☆[m] = guessed.map(&:class)
+          end
+          
+          guessed
+        else
+          @☆[m].map(&:∀)
         end
-        
-        guessed
       end
     end
 

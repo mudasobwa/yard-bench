@@ -61,7 +61,22 @@ Feature: Applying shorthands and some new methods to standard library
 # --------------------   Singletons   -----------------------
 # -----------------------------------------------------------
   
-  Scenario: Random value for the String class should be produced by call to String.random
+  Scenario: Random value for the String class should be produced by call to String.∀
     Given I am `using Yard::MonkeyPatches`
-    When I call random of on a String class
+    When I call ∀ on a String class
     Then the random value should be generated of type String and have default length of 32
+  
+  Scenario: Random value for the Fixnum class should be produced by call to Fixnum.∀
+    Given I am `using Yard::MonkeyPatches`
+    When I call ∀ on a Fixnum class
+    Then the random value should be generated of type Fixnum and be not greater than 1024
+
+  Scenario: Random value for the Array class should be produced by call to Array.∀
+    Given I am `using Yard::MonkeyPatches`
+    When I call ∀ on an Array class with size parameter 64
+    Then the random value should be generated of type Array and have size of the parameter
+
+  Scenario: Random value for the Hash class should be produced by call to Hash.∀
+    Given I am `using Yard::MonkeyPatches`
+    When I call ∀ on a Hash class with size parameter 64
+    Then the random value should be generated of type Hash and have size of the parameter
