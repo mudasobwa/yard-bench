@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email = 'am@mudasobwa.ru'
   s.homepage = 'http://github.com/mudasobwa/yard-bench'
   s.summary = %Q{Add a benchmark functionality to Yard.}
-  s.description = %Q{TODO: detailed description of your gem}
+  s.description = %Q{YARD plugin, which adds a benchmarking results to YARDdoc}
   s.extra_rdoc_files = [
     'LICENSE',
     'README.rdoc',
@@ -30,5 +30,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bueller'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'yard-cucumber'
+  s.add_development_dependency 'redcarpet'
 end
 

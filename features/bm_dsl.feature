@@ -24,3 +24,8 @@ Feature: The DSL for benchmarking within YARD documentation
     Given I marked some methods as benchmarkable
     When I call a ⌛ method
     Then I yield all the benchmarks
+
+  Scenario: The benchmarks may be set with wildcards
+    Given I marked all methods of a class as benchmarkable via `:⋅`
+    When I call a ⌛ method
+    Then I yield all the benchmarks

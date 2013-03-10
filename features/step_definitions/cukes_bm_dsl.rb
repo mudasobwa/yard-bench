@@ -7,7 +7,7 @@ using Yard::Bench
 
 module BmTests
   class BmTester
-    ⌚ :do_it, :do_other
+ #   ⌚ :do_it, :do_other
     attr_reader :value
     def initialize value, addval, *attrs
       @value = 10 + value + addval
@@ -54,9 +54,15 @@ end
 # -----------------------------------------------------------
 
 Given(/^I marked some methods as benchmarkable$/) do
-class String
-  ⌚ :capitalize
+  class String
+    ⌚ :capitalize
+  end
 end
+
+Given(/^I marked all methods of a class as benchmarkable via `:⋅`$/) do
+  class BmTests::BmTester
+    ⌚ :⋅
+  end
 end
 
 When(/^I call a ⌛ method$/) do
