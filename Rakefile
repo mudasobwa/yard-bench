@@ -24,7 +24,7 @@ task :default => :examples
 
 require 'yard'
 YARD::Rake::YardocTask.new do |t|
-  t.files   = ['lib/**/*.rb', 'features/**/*.feature', 'features/**/*.rb']
+  t.files   = ['lib/**/*.rb', 'features/**/*.feature', 'features/**/*.rb', 'examples/**/*.rb']
 #  t.options = ['--any', '--extra', '--opts'] # optional
 end
 

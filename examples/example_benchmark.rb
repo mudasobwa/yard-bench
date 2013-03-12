@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-module BmTests
-  class BmTester
+module BmExamples
+  class BmExample
     benchmark :do_it, :do_other
     attr_reader :value
     # Constructor

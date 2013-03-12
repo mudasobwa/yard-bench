@@ -81,6 +81,8 @@ module Yard
         @@fails ||= Set.new
         block_given? ? @@fails.each(&Proc.new) : @@fails
       end
+
+    public
       # Measures the specified method of the class given
       # @param clazz [Class] the class to measure method for
       # @param m [Symbol] the method to measure

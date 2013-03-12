@@ -1,0 +1,11 @@
+<% if object[:benchmarks] %>
+<div class="tags">
+  <h4>Benchmarks:</h4>
+  <ul class="benchmarks">
+    <% for bm in object[:benchmarks] %>
+      <li><%= bm[:name] %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+<% end %>

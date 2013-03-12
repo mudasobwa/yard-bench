@@ -1,0 +1,11 @@
+# encoding: utf-8
+
+<% if object[:benchmarks] %>
+
+Benchmarks:
+-----------
+
+<% for bm in object[:benchmarks] %>
+<%= indent wrap("- " + bm[:name]) %>
+<% end %>
+<% end %>
