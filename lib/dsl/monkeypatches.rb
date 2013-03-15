@@ -160,7 +160,7 @@ private
         { :req  => param_selector.call(:req), :rest => param_selector.call(:rest) }
       end
       # Suggests random parameters for instance method of a class
-      # Usage: `String.☂parameters :slice`
+      # Usage: `String.fake_parameters :method`
       # @param meth [Symbol] the method to suggest parameters for
       # @param inst [Object] an instance to suggest parameters of method for
       # @return [Array] an array of parameters suggested
