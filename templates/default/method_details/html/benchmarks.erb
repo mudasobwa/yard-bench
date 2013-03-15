@@ -3,10 +3,14 @@
   <h4>Benchmarks:</h4>
   <ul class="benchmarks">
     <% for bm in object[:benchmarks] %>
-      <% val = "%.2f" % bm.values[0] %>
-      <li><span class="name">×<%= bm.keys[0] %></span> ⇒ <%= val %>
+      <% key = "#{bm.keys[0]}".length - 1 %>
+      <% val = "%.3f" % bm.values[0] %>
+      <li><span class="name">×10<sup><%= key %></sup></span> ⇒ <%= val %>
       </li>
     <% end %>
   </ul>
+  <% dev = '%.2f' % object[:deviation] %>
+  <% pow = object[:power].nil? ? "unknown" : "#{'%.3f' % object[:power]}×10<sup>-6</sup>×O(N)" %>
+  <h5>Deviation: <span class="name"><%= dev %>%</span> Power: <span class="name"><%= pow %></span></h5>
 </div>
 <% end %>

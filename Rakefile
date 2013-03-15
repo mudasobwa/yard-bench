@@ -17,7 +17,7 @@ end
 
 require 'cucumber/rake/task'
 Cucumber::Rake::Task.new(:features) do |t|
-  t.cucumber_opts = "--format Yard::ColorCommentFormatter"
+  t.cucumber_opts = "--format Cucumber::Formatter::ColorCommentFormatter"
 end
 
 task :default => :examples
@@ -25,7 +25,7 @@ task :default => :examples
 require 'yard'
 YARD::Rake::YardocTask.new do |t|
   t.files   = ['lib/**/*.rb', 'features/**/*.feature', 'features/**/*.rb', 'examples/**/*.rb']
-#  t.options = ['--any', '--extra', '--opts'] # optional
+  t.options = ['-e./lib/yard-bench.rb', '--no-private']
 end
 
 task :list do

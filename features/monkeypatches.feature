@@ -38,22 +38,22 @@ Feature: Applying shorthands and some new methods to standard library
 # -----------------------------------------------------------
   
   Scenario: Random value for the String class should be produced
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call random of a size 1024 on a String instance
     Then the random value should be generated of type String and have length of 1024
   
   Scenario: Random value for the Fixnum class should be produced
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call random on a Fixnum instance 1024
     Then the random value should be generated of type Fixnum and be less than 1024
   
   Scenario: Random value for the Array class should be produced
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call random of a size 1024 on an Array instance
     Then the random value should be generated of type Array and have length of 1024
   
   Scenario: Random value for the Hash class should be produced
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call random of a size 1024 on a Hash instance
     Then the random value should be generated of type Hash and have length of 1024
   
@@ -62,21 +62,21 @@ Feature: Applying shorthands and some new methods to standard library
 # -----------------------------------------------------------
   
   Scenario: Random value for the String class should be produced by call to String.∀
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call ∀ on a String class
     Then the random value should be generated of type String and have default length of 32
   
   Scenario: Random value for the Fixnum class should be produced by call to Fixnum.∀
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call ∀ on a Fixnum class
     Then the random value should be generated of type Fixnum and be not greater than 1024
 
   Scenario: Random value for the Array class should be produced by call to Array.∀
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call ∀ on an Array class with size parameter 64
     Then the random value should be generated of type Array and have size of the parameter
 
   Scenario: Random value for the Hash class should be produced by call to Hash.∀
-    Given I am `using Yard::MonkeyPatches`
+    Given I am `using YARD::MonkeyPatches`
     When I call ∀ on a Hash class with size parameter 64
     Then the random value should be generated of type Hash and have size of the parameter

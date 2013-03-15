@@ -1,4 +1,4 @@
-# Yard::Bench
+# YARD::Bench
 
 TODO: Write a gem description
 
@@ -18,7 +18,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Put the following code anywhere within your class:
+
+    benchmark :func1, :func2
+    
+or even:
+
+    class String
+       ⌚ :⋅
+
+and the benchmarks for the chosen functions will be included in yardoc.
 
 ## Contributing
 

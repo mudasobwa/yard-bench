@@ -2,12 +2,12 @@
 
 require 'yard-bench'
 
-using Yard::MonkeyPatches
-using Yard::Bench
+using YARD::MonkeyPatches
+using YARD::Bench
 
+# @private
 module BmTests
   class BmTester
- #   ⌚ :do_it, :do_other
     attr_reader :value
     def initialize value, addval, *attrs
       @value = 10 + value + addval
@@ -55,21 +55,18 @@ end
 
 Given(/^I marked some methods as benchmarkable$/) do
   class String
-    ⌚ :capitalize
+    benchmark :capitalize
   end
 end
 
 Given(/^I marked all methods of a class as benchmarkable via `:⋅`$/) do
   class BmTests::BmTester
-    ⌚ :⋅
+    benchmark :⋅
   end
 end
 
 When(/^I call a ⌛ method$/) do
-#  Yard::Bench::Marks.⌛ { |c, m, bms|
-#    puts "#{c}\##{m} ⇒ Starting with [#{bms[:times]}] → #{bms[:benchmarks]}"
-#  }
-  puts Yard::Bench::Marks.⌛
+  puts YARD::Bench::Marks.⌛
 end
 
 Then(/^I yield all the benchmarks$/) do
@@ -77,7 +74,7 @@ Then(/^I yield all the benchmarks$/) do
 end
 
 When(/^I call a get method with `BmTests::BmTester`, `do_it` parameters$/) do
-  puts Yard::Bench::Marks.get 'BmTests::BmTester', 'do_it'
+  puts YARD::Bench::Marks.get 'BmTests::BmTester', 'do_it'
 end
 
 Then(/^I yield the benchmarks for `do_it` method$/) do

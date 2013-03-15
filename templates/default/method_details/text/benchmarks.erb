@@ -1,11 +1,15 @@
 # encoding: utf-8
 
 <% if object[:benchmarks] %>
-
 Benchmarks:
 -----------
-
-<% for bm in object[:benchmarks] %>
-<%= indent wrap("- " + bm[:name]) %>
-<% end %>
+  <% for bm in object[:benchmarks] %>
+    <% key = "#{bm.keys[0]}".length - 1 %>
+    <% val = "%.2f" % bm.values[0] %>
+    <%= indent wrap("→ ×10^#{key} ⇒ #{val}" ) %>
+  <% end %>
+  <% dev = "%.2f" % object[:deviation] %>
+  <% pow = object[:power].nil? ? "unknown" : object[:power] %>
+  <%= indent wrap("→ Deviation: #{dev}" ) %>
+  <%= indent wrap("→ Power: #{pow}" ) %>
 <% end %>

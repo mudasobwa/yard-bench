@@ -2,7 +2,7 @@
 
 require 'yard-bench'
 
-using Yard::MonkeyPatches
+using YARD::MonkeyPatches
 
 # -----------------------------------------------------------
 # --------------------   Kernel   ---------------------------
@@ -53,7 +53,7 @@ end
 # --------------------   Randoms   --------------------------
 # -----------------------------------------------------------
 
-Given(/^I am `using Yard::MonkeyPatches`$/) do
+Given(/^I am `using YARD::MonkeyPatches`$/) do
   # already using in the top of file
 end
 

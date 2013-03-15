@@ -1,31 +1,32 @@
 # encoding: utf-8
 
-require 'set'
 require 'benchmark'
-
 require_relative 'monkeypatches'
 
-# This should be a DSL used as:
 #   ⌚ :meth1, :meth2
 # The information should be normalized and collected in a kind of knowledge base
-module Yard
+module YARD
   module Bench
     # Class to be included for benchmarking DSL.
     #
     # It contains `Hash` of the following structure:
     #  — 
     class Marks
-      include Yard::MonkeyPatches
+      include YARD::MonkeyPatches
       
       class Mark
-        attr_reader :times, :memory, :ok
+        attr_reader :times, :memory, :power, :deviation, :ok
         def initialize(times, memory)
           @times = times
           @memory = memory
           @ok = !@times.nil? && !@memory.nil?
+          normalized_times = @times.inject([]) { |agg, e| agg << (e.values[0] / (10**agg.size)) }
+          @deviation = normalized_times.standard_deviation * 100 / normalized_times.mean
+          @power = normalized_times.mean / @times[0].keys[0] * 1_000_000 if @ok && @deviation < 20
         end
       end
       
+    protected
       # Standard time for the current processor/ram to normalize benchmarks
       STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
 
@@ -47,13 +48,6 @@ module Yard
         get_methods(clazz, meth).map { |m| bm…(clazz)[:methods][m] ||= self.mark(clazz, m) }
       end
 
-      # Returns benchmarks for the method given by spec (or the whole collection if none specified)
-      def self.get file, namespace, m
-        # FIXME This might be not yet initialized
-        load "#{file}"
-        self.∈! Object.const_get(namespace), m
-      end
-      
       # Calculates benchmarks for all the marked methods
       def self.⌛
         bm… { |c, ms| # "String" => { :class => String, :methods => {…} }
@@ -70,7 +64,7 @@ module Yard
           (1..10).each { # Sometimes benchmark returns 0 for unknown reason. Ugly hack to mostly avoid.
             mark = Mark.new(⌚(clazz, m), ☑(clazz, m))
             break mark if mark.times[0].values[0] > 0
-            log.warn "Benchmarking returns zeroes: #{mark.times}, remeasuring…"
+            log.warn "Benchmarks returned zeroes: #{mark.times}, remeasuring…"
           }
         rescue
           log.warn("Error calculating benchmarks: 〈#{$!}〉")
@@ -116,6 +110,12 @@ module Yard
       end
 
     public
+      # Returns benchmarks for the method given by spec (or the whole collection if none specified)
+      def self.get file, namespace, m
+        load "#{file}"
+        self.∈! Object.const_get(namespace), m
+      end
+      
       # Measures the specified method of the class given
       # @param clazz [Class] the class to measure method for
       # @param m [Symbol] the method to measure
@@ -141,7 +141,7 @@ module Yard
         iterations.times.map {
           clazz.☏ m
           `ps -o rss= -p #{$$}`.to_i
-        }.reduce(&:+) / iterations - kb
+        }.reduce(:+) / iterations - kb
       end
     end
 
@@ -149,7 +149,7 @@ module Yard
       # Mark the task for benchmarking
       # @param attribs [[:rest]] the list of methods to benchmark
       def ⌚ *attribs
-        attribs.each { |a| Yard::Bench::Marks.∈ self, a.to_sym }
+        attribs.each { |a| YARD::Bench::Marks.∈ self, a.to_sym }
       end
       alias benchmark ⌚
       

@@ -3,14 +3,14 @@ require 'yard-bench/version'
 
 Gem::Specification.new do |s|
   s.name = 'yard-bench'
-  s.version = Yard::Bench::VERSION
+  s.version = YARD::Bench::VERSION
   s.platform = Gem::Platform::RUBY
   s.date = '2013-02-21'
   s.authors = ['Alexei Matyushkin']
   s.email = 'am@mudasobwa.ru'
   s.homepage = 'http://github.com/mudasobwa/yard-bench'
   s.summary = %Q{Add a benchmark functionality to Yard.}
-  s.description = %Q{YARD plugin, which adds a benchmarking results to YARDdoc}
+  s.description = %Q{YARD plugin, which adds a benchmarking results to YARDoc}
   s.extra_rdoc_files = [
     'LICENSE',
     'README.rdoc',

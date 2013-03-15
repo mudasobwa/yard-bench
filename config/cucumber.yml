@@ -2,5 +2,5 @@
 ##YAML Template
 ---
 default: --profile yard
-yard: --format Yard::ColorCommentFormatter
+yard: --format Cucumber::Formatter::ColorCommentFormatter
 standard: --format pretty
