@@ -75,3 +75,12 @@ end
 Then(/^I yield all the benchmarks$/) do
   # pending # express the regexp above with the code you wish you had
 end
+
+When(/^I call a get method with `BmTests::BmTester`, `do_it` parameters$/) do
+  puts Yard::Bench::Marks.get 'BmTests::BmTester', 'do_it'
+end
+
+Then(/^I yield the benchmarks for `do_it` method$/) do
+  # pending # express the regexp above with the code you wish you had
+end
+

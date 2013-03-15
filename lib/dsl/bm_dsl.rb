@@ -13,6 +13,10 @@ module Yard
     # Class to be included for benchmarking DSL
     class Marks
       using Yard::MonkeyPatches
+      
+      # Standard time for the current processor/ram to normalize benchmarks
+      STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
+
       # Mark specified method of a class to be bemchmarkable
       #
       # @param clazz [Class] the class method is defined on
@@ -22,6 +26,20 @@ module Yard
         bm…(clazz) << meth
       end
 
+      # Returns benchmarks for the method given by spec (or the whole collection if none specified)
+      def self.get namespace = nil, m = nil
+        @@marks ||= self.⌛
+        return @@marks if namespace.nil?
+        
+        begin
+          # FIXME FIXME FIXME
+          @@marks.select { |e| e[:class] == namespace }[0][:methods][m.to_sym]
+        rescue NoMethodError
+          # This is because result of select is nil and [0] is call to nowhere
+          puts $!
+        end
+      end
+      
       # It makes no sense to cache methods, params and other metastuff
       #   since the majority of the time takes benchmarking itself
       def self.⌛
@@ -45,19 +63,16 @@ module Yard
           }
           
           {
-            :class => clazz, :methods => meths.inject({}) { |agg, meth|
+            :class => "#{clazz}", :methods => meths.inject({}) { |agg, meth|
             bm = ⌚(clazz, meth)
             mem = ☑(clazz, meth)
             yield clazz, meth, bm if block_given?
-            agg.merge({meth => {:benchmark => bm, :memory => mem}})
+            agg.merge({ meth => {:scope => :instance, :benchmark => bm, :memory => mem} })
           }}
         }
       end
 
     private
-      # Standard time for the current processor/ram to normalize benchmarks
-      STANDARD_TIME ||= Benchmark.measure { 1_000_000.times { "foo bar baz".capitalize }}.total 
-
       # Get all the benchmarks for the class. Lazy creates a `Set` to store
       #   benchmarks for future use if there is no benchmarks for the given class yet.
       #

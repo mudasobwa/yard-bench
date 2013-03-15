@@ -19,20 +19,16 @@ module Yard
       namespace_only
     
       def process
-        ns = namespace.to_s
-#        puts ; puts statement.methods ; puts
         cos = []
         statement.parameters.each { |astnode|
           if astnode.respond_to? :jump
-            m = "#{astnode.jump(:string_content).source[1..-1]}";
-            obj = YARD::CodeObjects::MethodObject.new(namespace, "#{m}")
-            
-            require_relative "../../examples/#{statement.file}" # FIXME
-            bm = Yard::Bench::Marks.⌚(::Kernel.const_get("::#{ns}"), m.to_sym)
-            #obj.benchmarks = [ {:name => "#{namespace}\##{m}"} ]
-            obj.benchmarks = [ {:name => "#{bm}"} ]
-            cos << obj
+            m = "#{astnode.jump(:string_content).source[1..-1]}" # [1..-1] is to get rid of symbol’s colon
+            if res = Yard::Bench::Marks.get("#{namespace}", "#{m}")
+              obj = YARD::CodeObjects::MethodObject.new(namespace, "#{m}")
+              obj.benchmarks = res[:benchmark][:benchmarks]
+              cos << obj
 #              bmo = BenchmarkObject.new(namespace, m)
+            end
           end
         }
         cos

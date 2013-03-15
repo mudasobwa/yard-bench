@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require_relative '../lib/dsl/bm_dsl'
+
 module BmExamples
   class BmExample
     benchmark :do_it, :do_other

@@ -29,3 +29,8 @@ Feature: The DSL for benchmarking within YARD documentation
     Given I marked all methods of a class as benchmarkable via `:⋅`
     When I call a ⌛ method
     Then I yield all the benchmarks
+    
+  Scenario: The only benchmark is to be returned properly for the class’ method
+    Given I marked all methods of a class as benchmarkable via `:⋅`
+    When I call a get method with `BmTests::BmTester`, `do_it` parameters
+    Then I yield the benchmarks for `do_it` method
