@@ -7,7 +7,6 @@ require_relative '../dsl/bm_dsl'
 #       within method scope…
 module Yard
   module Handlers
-    
 #    class BenchmarkObject < YARD::CodeObjects::Base
 #      def type ; :benchmark ; end
 #      def sep  ; '%'        ; end
@@ -23,15 +22,19 @@ module Yard
         statement.parameters.each { |astnode|
           if astnode.respond_to? :jump
             m = "#{astnode.jump(:string_content).source[1..-1]}" # [1..-1] is to get rid of symbol’s colon
-            if res = Yard::Bench::Marks.get("#{namespace}", "#{m}")
+            if res = Yard::Bench::Marks.get("#{statement.file}", "#{namespace}", "#{m}")
               obj = YARD::CodeObjects::MethodObject.new(namespace, "#{m}")
-              obj.benchmarks = res[:benchmark][:benchmarks]
+              obj.benchmarks = res.map { |e| e.times }.flatten
               cos << obj
 #              bmo = BenchmarkObject.new(namespace, m)
             end
           end
         }
         cos
+      end
+      
+      def find_file(file)
+        
       end
     end
   end

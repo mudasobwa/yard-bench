@@ -48,9 +48,10 @@ module Yard
       end
 
       # Returns benchmarks for the method given by spec (or the whole collection if none specified)
-      def self.get namespace = nil, m = nil
+      def self.get file, namespace, m
         # FIXME This might be not yet initialized
-        bm…[namespace][:methods][m]
+        load "#{file}"
+        self.∈! Object.const_get(namespace), m
       end
       
       # Calculates benchmarks for all the marked methods
@@ -66,7 +67,11 @@ module Yard
     private
       def self.mark(clazz, m)
         begin
-          Mark.new(⌚(clazz, m), ☑(clazz, m))
+          (1..10).each { # Sometimes benchmark returns 0 for unknown reason. Ugly hack to mostly avoid.
+            mark = Mark.new(⌚(clazz, m), ☑(clazz, m))
+            break mark if mark.times[0].values[0] > 0
+            log.warn "Benchmarking returns zeroes: #{mark.times}, remeasuring…"
+          }
         rescue
           log.warn("Error calculating benchmarks: 〈#{$!}〉")
           Mark.new(nil, nil)
@@ -122,7 +127,7 @@ module Yard
           break v if Benchmark.measure { (10**v).times {clazz.☏ m} }.total > 0.01
         }
         (deg...deg+iterations).to_a.map { |d| 10**d }.map { |e|
-          Benchmark.measure { e.times {clazz.☏ m} }.total * (1_000_000 / 10**deg) / STANDARD_TIME
+          { e => Benchmark.measure { e.times {clazz.☏ m} }.total / STANDARD_TIME }
         }
       end
       # Measures the memory required for a method in KBytes.
