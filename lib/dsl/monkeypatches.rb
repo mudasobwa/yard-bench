@@ -167,8 +167,13 @@ module YARD
       end
     end
     
+    # Helper for parsing argument errors in machine-readable collection.
     class ::ArgumentError
+      # Parses the error string and returns the machine-readable argument count contract.
+      # @return [Hash] consisting of an amount of arguments given,
+      # minimal required and (if makes sense) maximal.
       def argument_data
+        # ⇒ wrong number of arguments (1 for 2..3)
         /\((?<given>\d+)\s+\w+\s+(?<min_required>\d+)(?<modifier>\+|\.\.)?(?<max_required>\d+)\)/.match(self.to_s) { |m|
           { :given => m[:given],
             :min_required => m[:min_required],
@@ -182,9 +187,12 @@ module YARD
       end
     end
     
+    # Helper for parsing type errors in machine-readable format.
     class ::TypeError
+      # Parses the error string and returns the machine-readable expected arguments classes.
+      # @return [Hash] consisting of two strings representing _given_ and _required_ argument types.
       def type_data
-        # can't convert Hash into Integer
+        # ⇒ can't convert Hash into Integer
         # There are two ways to match: either rely on us locale, or find the uppercased classes
         /[^[A-Z]]*(?<given>[A-Z]\w*)[^[A-Z]]*(?<required>[A-Z]\w*)/.match(self.to_s) { |m|
           { :given => m[:given], :required => m[:required] }
@@ -192,6 +200,10 @@ module YARD
       end
     end
 
+    # Some aestetics in aliasing:
+    # @example
+    #   my_proc = λ { |e| puts e } # ⇒ lambda, strict parameters list
+    #   my_proc = Λ { |e| puts e } # ⇒ proc, not strict parameters list
     module ::Kernel
       # Alias for lambda
       alias λ lambda
@@ -199,22 +211,33 @@ module YARD
       alias Λ proc
       # default set of classes, supporting `random` feature
       DEFAULT_SAMPLES ||= ["", 1024, {}, []].freeze
+      # @private
       # The stub class for determining parameter list
       class RandomVoid ; def ∀ ; NotImplementedError.new('RandomVoid class is not intended to use.') ; end ; end
 
     protected
       # Random instance of random class
-      # @param samples [Array] the instances of classes supporting `#random` method.
-      #        Those will vbe used as initial parameters for calls to `random` on them.
-      # @return random instance of one of the classes given as parameters
+      # @param samples [Array] the instances of classes supporting +#random+ method.
+      # Those will vbe used as initial parameters for calls to `random` on them.
+      # @return [Object] random instance of one of the classes given as parameters
       def random(samples: DEFAULT_SAMPLES)
         samples.dup.sample.∀
       end
     end
 
+    # Helpers for calling methods and instantiate class silently, even if there are
+    # arguments to be passed to constructor/method. The main idea is to try to guess
+    # the parameters, awaited by method, generate randoms for them and finally call
+    # the method on the singleton instance of this class.
     class ::Class
-      # Instance of a class and the result of last call to method with fake params
-      attr_reader :★, :☆
+      # Instance of a class, lazy initialized with guessed parameters. Cached.
+      # @note There is a possibility to explicitely set the singleton instance, in which case all the methods will be called on it.
+      # @todo Maybe we need to overwrite setter for this variable to avoid weird settings like +String.★ = Fixnum.new+
+      # @see ☎
+      attr_accessor :★
+      # The result of last call to method with with fake params. Cached.
+      # @see ☏
+      attr_reader :☆
       
       # Tries to make a new instance of a class
       def ☎
@@ -222,14 +245,16 @@ module YARD
         @★
       end
 
-      # Tries to call a mthd on a class
-      # @param m [Symbol] the method to be called
+      # Tries to call a method +m+ on a class.
+      # @param m [Symbol] the method to be called.
+      # @return [Object] the result of call to method +m+
       def ☏ m = :to_s
         ☎.send(m, *fake_parameters(:m => m))
       end
 
-      # Instantiates the class with applicable random value
-      # @return a random value of this Class class
+      # Instantiates the class with applicable random value.
+      # @param args [Array] if passed, used as sceleton for a call to {#∀} method.
+      # @return [Instance] a random value of this Class class.
       def ∀ *args
         begin
           inst = self.☎
@@ -264,8 +289,7 @@ private
       end
       # Suggests random parameters for instance method of a class
       # Usage: `String.fake_parameters :method`
-      # @param meth [Symbol] the method to suggest parameters for
-      # @param inst [Object] an instance to suggest parameters of method for
+      # @param m [Symbol] the method to suggest parameters for
       # @return [Array] an array of parameters suggested
       def fake_parameters(m: nil)
         if (@☆ ||= {})[m].nil?
