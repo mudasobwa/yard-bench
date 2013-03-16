@@ -25,36 +25,38 @@ defined in the class. There are four wildcards available:
 
 Let’s say there is a class `BmExample` that you want to benchmark:
 
-    # Example module to test benchmarking functionality.
-    module BmExamples
-      # Example class to test benchmarking functionality.
-      class BmExample
-        benchmark :do_it
-            ⌚ :do_other
-        
-        # The value
-        attr_reader :value
-        # Constructor.
-        # @param value [Fixnum] the value to add to 10 within {#value} initializer.
-        # @param addval [Fixnum] another value to add to 10 within {#value} initializer.
-        # @param attrs [Hash] additional parameters (ignored.)
-        def initialize value, addval, *attrs
-          @value = 10 + value + addval
-        end
-        # Multiplies {#value} by parameter given.
-        # @param deg [Fixnum]
-        # @return [Fixnum] {#value} multiplied by deg.
-        def do_it deg
-          @value * deg
-        end
-        # Produces a power of the parameter given.
-        # @param base [Fixnum]
-        # @return [Fixnum] {#value} in a power of base
-        def do_other base = 2
-          @value ** base
-        end
-      end
+```ruby
+# Example module to test benchmarking functionality.
+module BmExamples
+  # Example class to test benchmarking functionality.
+  class BmExample
+    benchmark :do_it
+        ⌚ :do_other
+    
+    # The value
+    attr_reader :value
+    # Constructor.
+    # @param value [Fixnum] the value to add to 10 within {#value} initializer.
+    # @param addval [Fixnum] another value to add to 10 within {#value} initializer.
+    # @param attrs [Hash] additional parameters (ignored.)
+    def initialize value, addval, *attrs
+      @value = 10 + value + addval
     end
+    # Multiplies {#value} by parameter given.
+    # @param deg [Fixnum]
+    # @return [Fixnum] {#value} multiplied by deg.
+    def do_it deg
+      @value * deg
+    end
+    # Produces a power of the parameter given.
+    # @param base [Fixnum]
+    # @return [Fixnum] {#value} in a power of base
+    def do_other base = 2
+      @value ** base
+    end
+  end
+end
+```
 
 The fifth and sixth lines of code will mark methods `do_it` and `do_other` for benchmarking.
 Actual benchmarking will take place during yard documentation production. This definitely will
@@ -63,7 +65,7 @@ interfere the normal execution timeline at all.
 
 After the generation is done, the methods are measured with an intellectual algorhytm:
 
-[!YARD bench results](http://rocket-science.ru/img/yard-bench-result.png)
+![YARD bench results](http://rocket-science.ru/img/yard-bench-result.png)
 
 The results are 〈almost〉 independent of the architecture of the target machine on which
 the measurements were done (they are normalized by `1_000_000.times {"foo bar baz".capitalize}`.)
