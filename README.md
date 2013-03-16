@@ -5,7 +5,9 @@ There is a handy DSL provided to make benchmarking almost without additional eff
 
 To mark a method(s) for benchmarking, just put
 
-    benchmark :meth1, :meth2  
+```ruby
+benchmark :meth1, :meth2
+```
 
 or
 
@@ -31,7 +33,7 @@ module BmExamples
   # Example class to test benchmarking functionality.
   class BmExample
     benchmark :do_it
-        ⌚ :do_other
+     ⌚ :do_other
     
     # The value
     attr_reader :value
