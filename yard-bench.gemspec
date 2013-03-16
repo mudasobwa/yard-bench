@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = %Q{YARD plugin, which adds a benchmarking results to YARDoc}
   s.extra_rdoc_files = [
     'LICENSE',
-    'README.md',
+    'README.md'
   ]
 
   s.required_rubygems_version = Gem::Requirement.new('>= 1.3.7')

@@ -111,8 +111,8 @@ module YARD
 
     public
       # Returns benchmarks for the method given by spec (or the whole collection if none specified)
-      def self.get file, namespace, m
-        load "#{file}"
+      def self.get file = nil, namespace, m
+        require "#{file}" unless file.nil?
         self.∈! Object.const_get(namespace), m
       end
       
