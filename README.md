@@ -15,8 +15,10 @@ or
     
 or even
 
-    benchmark :⋅
-    
+```ruby
+benchmark :⋅
+```
+
 somewhere inside your class declaration. The latter states for benchmarking all the instance methods,
 defined in the class. There are four wildcards available:
 
@@ -33,7 +35,7 @@ module BmExamples
   # Example class to test benchmarking functionality.
   class BmExample
     benchmark :do_it
-     ⌚ :do_other
+    ⌚ :do_other
     
     # The value
     attr_reader :value
@@ -93,12 +95,16 @@ Or install it yourself as:
 
 Put the following code anywhere within your class:
 
-    benchmark :func1, :func2
+```ruby
+benchmark :func1, :func2
+```
     
 or even:
 
-    class String
-       ⌚ :⋅
+```ruby
+class String
+  ⌚ :⋅
+```
 
 and the benchmarks for the chosen functions will be included in yardoc.
 
