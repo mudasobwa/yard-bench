@@ -4,6 +4,7 @@ require 'yard-bench/version'
 Gem::Specification.new do |s|
   s.name = 'yard-bench'
   s.version = YARD::Bench::VERSION
+  s.license = 'MIT'
   s.platform = Gem::Platform::RUBY
   s.date = '2013-02-21'
   s.authors = ['Alexei Matyushkin']
@@ -13,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = %Q{YARD plugin, which adds a benchmarking results to YARDoc}
   s.extra_rdoc_files = [
     'LICENSE',
-    'README.rdoc',
+    'README.md',
   ]
 
   s.required_rubygems_version = Gem::Requirement.new('>= 1.3.7')
